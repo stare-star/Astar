@@ -216,3 +216,5 @@ class Cat():
 cat = Cat(1, 2, 50, 50)
 cat.drawMap()
 cat.search()
+
+
