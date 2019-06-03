@@ -8,14 +8,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import ForeignKey
 from sqlalchemy import Column, String, Integer, Text
 from sqlalchemy.orm import sessionmaker, relationship
-
-
-engine = create_engine('mysql+mysqldb://root:mysql666@118.25.176.99:3306/traffic?charset=utf8')
-Base = declarative_base()
+from DAO.connect import Base, engine
 
 
 class Train(Base):
-
     __tablename__ = 'trains'
 
     id = Column(Integer, primary_key=True)
@@ -25,27 +21,40 @@ class Train(Base):
     arrive_time = Column(String(255), nullable=False)
     start_where = Column(String(255), nullable=False)
     arrive_where = Column(String(255), nullable=False)
-    price = Column(Integer, nullable=False)
-    date= Column(String(255), nullable=False)
-
+    price = Column(Integer, nullable=True)
+    date = Column(String(255), nullable=False)
 
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, self.number)
 
 
-
-
-if __name__ == '__main__':
-    Base.metadata.create_all(engine)
-
+def get_route(DateStart, DateEnd, station):
     Session = sessionmaker(bind=engine)
     session = Session()
-
     query = (session
              .query(Train)
-             .filter(Train.id< 100)
-             .limit(100)
+             .filter(Train.date >= DateStart)
+             .filter(Train.date <= DateEnd)
+             .filter_by(start_where=station)
+             .limit(10000)
              .offset(0).all()
              )
-    print(query)
-    # session.commit()
+    session.close()
+    # for i in query:
+    return query
+def get_price(id):
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    query = (session
+             .query(Train)
+             .filter(Train.id==id)
+             .all()
+             )
+    session.close()
+    # for i in query:
+    return query
+
+# session.commit()
+if __name__ == '__main__':
+    (get_route(20190528, 20190530, "长春"))
+    print(get_price(1)[0].price)

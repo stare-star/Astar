@@ -4,6 +4,11 @@
 
 import time
 
+date = "20190530"
+clock = "00:24"
+timed=date + clock
+def mktimestamp(timeformat):  #"2019053000:24"
 
+    return time.mktime(time.strptime(timeformat,'%Y%m%d%H:%M'))   #10位时间戳
 if __name__ == '__main__':
-    print(time.time())
+    print(mktimestamp(timed))

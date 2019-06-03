@@ -4,8 +4,9 @@
 
 # coding: utf-8
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import sessionmaker
 
-from DAO.connect import session, Base
+from DAO.connect import engine,Base
 
 
 class Station_code(Base):
@@ -29,7 +30,8 @@ class Station_code(Base):
         stations = re.findall(u'([\u4e00-\u9fa5]+)\|([A-Z]+)', station_code_url_response.text)
         station_code = dict(stations)
         code_station = {v: k for k, v in station_code.items()}
-
+        Session = sessionmaker(bind=engine)
+        session = Session()
         for v, k in code_station.items():
             print(v, k)
             e = Station_code(code=v, station=k)
@@ -39,6 +41,8 @@ class Station_code(Base):
 
 
 def code2Station(code):
+    Session = sessionmaker(bind=engine)
+    session = Session()
     Station = (session
                .query(Station_code.station)
                .filter(Station_code.code == code)

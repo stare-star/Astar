@@ -169,13 +169,10 @@ class Cat():
         plt.tight_layout()
 
     def search(self):
-
         start_time = time.time()
-
         start_point = self.start
         start_point.cost = 0
         self.openList.append(start_point)
-
         while True:
             cell = self.choseMinH()
             if cell == None:

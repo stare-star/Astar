@@ -118,3 +118,4 @@ if __name__ == '__main__':
         session.add(article)
 
     session.commit()
+    session.close()
