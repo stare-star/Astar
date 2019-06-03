@@ -4,13 +4,13 @@
 import sys
 import time
 
-from Models.station import Station
+from Models.route import Route
 from DAO.distance import get_distance
 
 
 class QueryRoute:
-    openList = []
-    closedList = []
+    open_list = []
+    closed_list = []
 
     def __init__(self, start, target, timestamp_start, timestamp_end):
         self.start = start  # 设置起点
@@ -20,30 +20,24 @@ class QueryRoute:
 
         self.min_cost = sys.maxsize
 
-    def getWhere(self):  # 当前所在位置
-
-        return self.where
-
-    def setWhere(self, where):  # 当前所在位置
-
-        self.where = where
-
-    def total_cost(self, station):  # 总的代价
+    def get_total_cost(self, station):  # 总的代价
         # print(self.base_cost(station), self.heuristic_cost(station), self.change_cost(station))
-        return (self.base_cost(station)) +(self.heuristic_cost(station)) + (self.change_cost(station))
+        return (self.base_cost(station)) + (self.heuristic_cost(station)) + (
+            self.change_cost(station)) + self.price_cost(station)
 
     def base_cost(self, station):  # 已走距离
         # print("get_distance:", station.station_name, self.start.station_name)
-        if station.station_name == self.start.station_name:
+        if station.arrive_where == self.start.arrive_where:
             return int(0)
-        return get_distance(station.station_name, self.start.station_name) * 0.33
+        return get_distance(station.arrive_where, self.start.arrive_where) * 0.33
 
     def heuristic_cost(self, station):  # 启发函数  距离
         # print("get_distance:", station.station_name, self.target.station_name)
 
-        if station.station_name == self.target.station_name:
+        if station.arrive_where == self.target.arrive_where:
             return int(0)
-        return get_distance(station.station_name, self.target.station_name) * 0.33
+        print(station.arrive_where, self.target.arrive_where)
+        return get_distance(station.arrive_where, self.target.arrive_where) * 0.33
 
     def change_cost(self, station):  # 计算起点到当前点中转代价
         if self.start == station:
@@ -56,28 +50,20 @@ class QueryRoute:
         if self.start == station:
             station.price_cost = 0
         else:
-            station.price_cost = station.parent.price_cost + station.price
-        return station.price_cost
+            station.price_cost =float (station.parent.price_cost) + float(station.price)
+        return float(station.price_cost)
 
     def chose_min(self):
         min_cost = sys.maxsize
-        for i in self.openList:
-            i.cost = self.total_cost(i)
+        for i in self.open_list:
+            # i.cost = self.get_total_cost(i)
+            i.cost = self.get_total_cost(i)
+            print(i.cost)
             if i.cost < min_cost:
-                # min_cost = i.cost
+                min_cost = i.cost
                 min_i = i
-        print("openlist大小", len(self.openList), "openlist中代价最小的车站:", min_i.station_name)
-        return min_i  # 返回openlist中代价最小的车站
-
-    def stationRoute(self, station):
-        """
-
-        :param station:
-        :return:  返回该站的可行路线
-        """
-        pass
-
-        return
+        print("open_list大小", len(self.open_list), "open_list中代价最小的车站:", min_i.arrive_where)
+        return min_i  # 返回open_list中代价最小的车站
 
     def process_station(self, station, parent):
         '''
@@ -91,15 +77,17 @@ class QueryRoute:
         # if station.passable == 0:
         #     return  # Do nothing for invalid point
 
-        if station in self.closedList:
+        if station in self.closed_list:
             return  # Do nothing for visited point
-        # print('Process Point [', station.station_name, ',]', ', cost: ', 'station.cost')
-        if station not in self.openList:
+        print('Process Point [', station.arrive_where, ',]', ', cost: ', 'station.cost')
+        if station not in self.open_list:
             station.parent = parent
-            station.cost = self.total_cost(station)
-            self.openList.append(station)
+            station.total_cost = self.get_total_cost(station)
+            print(station.total_cost)
+            #todo  好像没用
+            self.open_list.append(station)
 
-    def BuildPath(self, station):
+    def build_path(self, station):
         path = []
         while True:
             path.insert(0, station)  # Insert first  头插法
@@ -108,14 +96,14 @@ class QueryRoute:
             else:
                 station = station.parent
         for i in path:
-            print(i)
+            print(i.arrive_where, i.number, i.id)
 
     def search(self):
 
         start_time = time.time()
         start_station = self.start
         start_station.cost = 0
-        self.openList.append(start_station)
+        self.open_list.append(start_station)
 
         while True:
             station = self.chose_min()
@@ -126,36 +114,27 @@ class QueryRoute:
             # rec = Rectangle((cell.x, cell.y), 1, 1, color='c')
             # self.ax.add_patch(rec)
             # self.SaveImage()
-
-            if self.target.station_name == station.station_name:
+            print("比较：", self.target.arrive_where_city, station.arrive_where_city)
+            if self.target.arrive_where_city == station.arrive_where_city:
                 end_time = time.time()
                 print('===== Algorithm finish in', int(end_time - start_time), ' seconds')
-                return self.BuildPath(station)
+                return self.build_path(station)
 
-            self.openList.remove(station)
-            self.closedList.append(station)
+            self.open_list.remove(station)
+            self.closed_list.append(station)
 
             # Process all neighbors
-            neighbors = station.getNeighbor(self.timestamp_start, self.timestamp_end)
+            neighbors = station.get_next_route(self.timestamp_start, self.timestamp_end)
             k = 0
             for i in neighbors:
-                # print(k, len(neighbors))
-                # k += 1
-                # print(i.station_name)
+                print(k, len(neighbors))
+                k += 1
+                print(i.arrive_where)
                 self.process_station(i, station)
 
-            # self.processPoint(self.cellNeighbor(cell, 1, 0), cell)
-            # self.processPoint(self.cellNeighbor(cell, 0, 1), cell)
-            # self.processPoint(self.cellNeighbor(cell, -1, 0), cell)
-            # self.processPoint(self.cellNeighbor(cell, 0, -1), cell)
-            # self.processPoint(self.cellNeighbor(cell, 1, 1), cell)
-            # self.processPoint(self.cellNeighbor(cell, -1, 1), cell)
-            # self.processPoint(self.cellNeighbor(cell, -1, -1), cell)
-            # self.processPoint(self.cellNeighbor(cell, 1, -1), cell)
 
-
-start = Station("长春站")
-target = Station("北京站")
+start = Route("重庆站", "重庆")
+target = Route("北京站", "北京")
 timestamp_start = 20190529
 timestamp_end = 20190530
 route = QueryRoute(start, target, timestamp_start, timestamp_end)

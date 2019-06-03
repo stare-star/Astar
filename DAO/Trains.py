@@ -23,9 +23,14 @@ class Train(Base):
     arrive_where = Column(String(255), nullable=False)
     price = Column(Integer, nullable=True)
     date = Column(String(255), nullable=False)
+    arrive_where_city= Column(String(255), nullable=False)
+    start_where_city= Column(String(255), nullable=False)
 
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, self.number)
+
+
+
 
 
 def get_route(DateStart, DateEnd, station):
@@ -56,5 +61,5 @@ def get_price(id):
 
 # session.commit()
 if __name__ == '__main__':
-    (get_route(20190528, 20190530, "长春"))
-    print(get_price(1)[0].price)
+    print((get_route(20190528, 20190530, "长春站"))[0].arrive_time)
+    # print(get_price(1)[0].price)

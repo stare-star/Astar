@@ -79,4 +79,4 @@ def get_distance_pro(station,DateStart, DateEnd):
 
 if __name__ == '__main__':
     # print(get_distance("北京站", "长春站"))
-    print(get_distance_pro("北京站", "长春站"))
+    print(get_distance("长春站", "三亚站"))
