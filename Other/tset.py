@@ -2,6 +2,52 @@
 # #@Author: LYX
 # #@File  : tset.py
 #
+
+from time import ctime,sleep
+
+import threading
+
+def coding(language):
+    for i in range(5):
+        sleep(0.1)
+        print('I\'m coding ',language, ' program at ', ctime() )
+
+def music():
+    for i in range(50):
+        sleep(0.1)
+
+        print('I\'m listening music at ', ctime())
+
+if __name__ == '__main__':
+
+    list=[]
+    li=[1,2,]
+    list.insert(0,li)
+    list.insert(1,"ffrd")
+    print(list)
+
+    # print('thread %s is running...' % threading.current_thread().name)
+    #
+    # thread_list = []
+    # t1 = threading.Thread(target=coding, args=('Python',))
+    # t2 = threading.Thread(target=music)
+    # t1.start()
+    # t2.start()
+    # print('thread %s ended.' % threading.current_thread().name)
+    # print(threading.active_count())
+    # thread_list.append(t1)
+    # thread_list.append(t2)
+
+    # for t in thread_list:
+    #     t.setDaemon(True)  # 设置为守护线程
+    #     t.start()
+    #     t.join()  # 在这个子线程完成运行之前，主线程将一直被阻塞
+
+
+
+
+
+
 # # import re
 # # import requests
 # # from urllib.parse import urlencode

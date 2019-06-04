@@ -5,7 +5,7 @@ import sys
 import time
 
 from Models.route import Route
-from DAO.distance import get_distance
+from DAO.distance import get_distance_from_list, get_distance_2_all
 
 
 class QueryRoute:
@@ -17,8 +17,8 @@ class QueryRoute:
         self.target = target  # 目的地
         self.timestamp_start = timestamp_start
         self.timestamp_end = timestamp_end
-
         self.min_cost = sys.maxsize
+
 
     def get_total_cost(self, station):  # 总的代价
         # print(self.base_cost(station), self.heuristic_cost(station), self.change_cost(station))
@@ -29,7 +29,7 @@ class QueryRoute:
         # print("get_distance:", station.station_name, self.start.station_name)
         if station.arrive_where == self.start.arrive_where:
             return int(0)
-        return get_distance(station.arrive_where, self.start.arrive_where) * 0.33
+        return int(get_distance_from_list(self.dis_list[0], station.arrive_where)) * 0.33
 
     def heuristic_cost(self, station):  # 启发函数  距离
         # print("get_distance:", station.station_name, self.target.station_name)
@@ -37,7 +37,8 @@ class QueryRoute:
         if station.arrive_where == self.target.arrive_where:
             return int(0)
         print(station.arrive_where, self.target.arrive_where)
-        return get_distance(station.arrive_where, self.target.arrive_where) * 0.33
+
+        return int(get_distance_from_list(self.dis_list[1], station.arrive_where))* 0.33
 
     def change_cost(self, station):  # 计算起点到当前点中转代价
         if self.start == station:
@@ -50,7 +51,7 @@ class QueryRoute:
         if self.start == station:
             station.price_cost = 0
         else:
-            station.price_cost =float (station.parent.price_cost) + float(station.price)
+            station.price_cost = float(station.parent.price_cost) + float(station.price)
         return float(station.price_cost)
 
     def chose_min(self):
@@ -82,9 +83,9 @@ class QueryRoute:
         print('Process Point [', station.arrive_where, ',]', ', cost: ', 'station.cost')
         if station not in self.open_list:
             station.parent = parent
-            station.total_cost = self.get_total_cost(station)
-            print(station.total_cost)
-            #todo  好像没用
+            # station.total_cost = self.get_total_cost(station)
+            # print(station.total_cost)
+            # todo  好像没用
             self.open_list.append(station)
 
     def build_path(self, station):
@@ -99,15 +100,15 @@ class QueryRoute:
             print(i.arrive_where, i.number, i.id)
 
     def search(self):
-
         start_time = time.time()
+        self.dis_list = get_distance_2_all(self.start.arrive_where, self.target.arrive_where)
         start_station = self.start
         start_station.cost = 0
         self.open_list.append(start_station)
 
         while True:
             station = self.chose_min()
-            if station == None:
+            if station is None:
                 print('No path found, algorithm failed!!!')
                 return
 
@@ -133,9 +134,11 @@ class QueryRoute:
                 self.process_station(i, station)
 
 
-start = Route("重庆站", "重庆")
+start = Route("昆明站", "昆明")
 target = Route("北京站", "北京")
 timestamp_start = 20190529
 timestamp_end = 20190530
 route = QueryRoute(start, target, timestamp_start, timestamp_end)
 route.search()
+# print(route.dis_list[0])
+# print(get_distance_from_list(route.dis_list[1], "上海站"))

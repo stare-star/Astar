@@ -1,8 +1,9 @@
 # coding: utf-8
 
 import random
-from faker import Factory
-
+import threading
+from thread import MyThread
+from utils import logger
 from sqlalchemy import create_engine, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import ForeignKey
@@ -22,7 +23,7 @@ class Distance(Base):
     distance = Column(String(255), nullable=False)
 
     def __repr__(self):
-        return '%s(%r)' % (self.__class__.__name__, self.number)
+        return '%s(%r)' % (self.__class__.__name__, self.id)
 
 
 def get_distance(start, arrive):
@@ -35,48 +36,65 @@ def get_distance(start, arrive):
     session = Session()
     Q = session.query(Distance) \
         .filter(Distance.start == start) \
-        .filter(Distance.arrive == arrive).all ()
+        .filter(Distance.arrive == arrive).all()
     session.close()
-    if  len(Q)==0:
-
-
-        print(start, arrive,"找不到距离数据")
+    if len(Q) == 0:
+        print(start, arrive, "找不到距离数据")
         return int(999999999)
 
-    return int(Q[0].distance)/1000
+    return int(Q[0].distance) / 1000
 
-def get_distance_pro(station,DateStart, DateEnd):
+
+def get_distance_from_list(sub_list, station):
+    for i in sub_list:
+        if i.arrive == station:
+            print(i.distance)
+            return i.distance
+
+
+@logger
+def get_distance_all(station):
     """
-    :param start:
-    :param arrive:
+    :param station:站名
     :return: 两地距离
+    A到所有其他地方的距离   list
     """
 
     Session = sessionmaker(bind=engine)
     session = Session()
-    query = (session
-             .query(Train)
-             .filter(Train.date >= DateStart)
-             .filter(Train.date <= DateEnd)
-             .filter_by(start_where=station)
-             .limit(10000)
-             .offset(0).all()
-             )
-
-
-    Q = session.query(Distance) \
-        .filter(Distance.start == start) \
-        .filter(Distance.arrive ==list).all ()
+    Q = (session
+         .query(Distance)
+         .filter(Distance.start == station)
+         .limit(10000)
+         .offset(0).all()
+         )
     session.close()
-    if  len(Q)==0:
-
-
-        print(start, arrive,"找不到距离数据")
+    if len(Q) == 0:
+        print("找不到距离数据")
         return int(999999999)
+    return Q
 
-    return int(Q[0].distance)/1000
+
+@logger
+def get_distance_2_all(start_station, end_station):
+    '''
+
+    :param start_station:
+    :param end_station:
+    :return: 到两地的所有距离
+    '''
+    t1 = MyThread(target=get_distance_all, args=(start_station,))
+    t2 = MyThread(target=get_distance_all, args=(end_station,))
+    t1.start()
+    t2.start()
+    dis_list = []
+    dis_list.insert(0, t1.get_result())
+    dis_list.insert(1, t2.get_result())
+    return dis_list
 
 
 if __name__ == '__main__':
     # print(get_distance("北京站", "长春站"))
-    print(get_distance("长春站", "三亚站"))
+    Q = get_distance_2_all("长春站", "三亚站")
+    print(Q[0][0].arrive)
+    print(get_distance_from_list(Q[0], "重庆站"))
