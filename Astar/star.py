@@ -18,7 +18,7 @@ class QueryRoute:
         self.timestamp_start = timestamp_start
         self.timestamp_end = timestamp_end
         self.min_cost = sys.maxsize
-
+        self.dis_list = get_distance_2_all(self.start.arrive_where, self.target.arrive_where)
 
     def get_total_cost(self, station):  # 总的代价
         # print(self.base_cost(station), self.heuristic_cost(station), self.change_cost(station))
@@ -38,7 +38,7 @@ class QueryRoute:
             return int(0)
         print(station.arrive_where, self.target.arrive_where)
 
-        return int(get_distance_from_list(self.dis_list[1], station.arrive_where))* 0.33
+        return int(get_distance_from_list(self.dis_list[1], station.arrive_where)) * 0.33
 
     def change_cost(self, station):  # 计算起点到当前点中转代价
         if self.start == station:
@@ -96,12 +96,19 @@ class QueryRoute:
                 break
             else:
                 station = station.parent
+        res = []
         for i in path:
-            print(i.arrive_where, i.number, i.id)
+            res.append([i.arrive_where, i.number, i.id])
+        print(res)
+        path = ""
+        for r in res:
+            path += str(r[1])+"  "+r[0] + "  "
+
+        print(path)
+        return path
 
     def search(self):
         start_time = time.time()
-        self.dis_list = get_distance_2_all(self.start.arrive_where, self.target.arrive_where)
         start_station = self.start
         start_station.cost = 0
         self.open_list.append(start_station)
@@ -118,7 +125,7 @@ class QueryRoute:
             print("比较：", self.target.arrive_where_city, station.arrive_where_city)
             if self.target.arrive_where_city == station.arrive_where_city:
                 end_time = time.time()
-                print('===== Algorithm finish in', int(end_time - start_time), ' seconds')
+                print('===== Algorithm finish in', (end_time - start_time), ' seconds')
                 return self.build_path(station)
 
             self.open_list.remove(station)
@@ -134,11 +141,12 @@ class QueryRoute:
                 self.process_station(i, station)
 
 
-start = Route("昆明站", "昆明")
-target = Route("北京站", "北京")
-timestamp_start = 20190529
-timestamp_end = 20190530
-route = QueryRoute(start, target, timestamp_start, timestamp_end)
-route.search()
-# print(route.dis_list[0])
-# print(get_distance_from_list(route.dis_list[1], "上海站"))
+if __name__ == '__main__':
+    start = Route("昆明站", "昆明")
+    target = Route("北京站", "北京")
+    timestamp_start = 20190529
+    timestamp_end = 20190530
+    route = QueryRoute(start, target, timestamp_start, timestamp_end)
+    route.search()
+    # print(route.dis_list[0])
+    # print(get_distance_from_list(route.dis_list[1], "上海站"))

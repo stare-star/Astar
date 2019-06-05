@@ -2,6 +2,7 @@
 # @Author: LYX
 # @File  : route.py
 from DAO.Trains import get_route
+from utils import logger
 
 
 class Route:
@@ -21,7 +22,6 @@ class Route:
         self.price = price
         self.date = date
         self.parent = None
-
     def get_next_route(self, timestampStart, timestampEnd):
         '''
         #获取该站在所给时间内的所有的可达路线
@@ -79,5 +79,5 @@ class Route:
 if __name__ == '__main__':
     station = Route("长春站")
 
-    for i in station.getNeighbor(20190529, 20190530):
-        print(i.station_name)
+    for i in station.get_next_route(20190529, 20190530):
+        print(i.arrive_where)

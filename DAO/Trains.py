@@ -6,6 +6,7 @@ from faker import Factory
 from sqlalchemy import create_engine, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import ForeignKey
+from utils import logger
 from sqlalchemy import Column, String, Integer, Text
 from sqlalchemy.orm import sessionmaker, relationship
 from DAO.connect import Base, engine
@@ -32,15 +33,15 @@ class Train(Base):
 
 
 
-
+@logger
 def get_route(DateStart, DateEnd, station):
     Session = sessionmaker(bind=engine)
     session = Session()
     query = (session
              .query(Train)
+             .filter_by(start_where=station)
              .filter(Train.date >= DateStart)
              .filter(Train.date <= DateEnd)
-             .filter_by(start_where=station)
              .limit(10000)
              .offset(0).all()
              )
