@@ -1,7 +1,8 @@
 # @Time  : 2019/5/25 0025 17:10
 # @Author: LYX
 # @File  : airplane.py
-from Mylog import logging
+from Mylog import logger
+from utils import logfun
 from sqlalchemy import Column, String, Integer, Text, DateTime, Float
 from CONF.config import url
 from sqlalchemy import create_engine, Table
@@ -48,7 +49,7 @@ def get_route_air(DateStart, DateEnd, station):
     return query
 
 
-def get_route_air_city(DateStart, DateEnd, station):
+def get_air_city(station):
     Session = sessionmaker(bind=engine)
     session = Session()
     city = (session
@@ -56,9 +57,16 @@ def get_route_air_city(DateStart, DateEnd, station):
             .filter_by(start_where=station)
             .first()
             )
+    return city[0]
+
+
+@logfun
+def get_route_air_city(DateStart, DateEnd, city):
+    Session = sessionmaker(bind=engine)
+    session = Session()
     query = (session
              .query(Airplane)
-             .filter_by(start_where_city=city[0])
+             .filter_by(start_where_city=city)
              .filter(Airplane.start_time >= DateStart)
              .filter(Airplane.start_time <= DateEnd)
              .all()
@@ -68,4 +76,10 @@ def get_route_air_city(DateStart, DateEnd, station):
 
 if __name__ == '__main__':
     print((get_route_air("2019-05-30 00:04:59", "2019-05-30 20:05:00", "首都国际机场T2航站楼")))
-    print((get_route_air_city("2019-05-30 00:04:59", "2019-05-30 20:05:00", "首都国际机场T2航站楼")))
+
+    print((get_route_air_city("2019-05-30 00:04:59", "2019-05-30 20:05:00", get_air_city("首都国际机场T2航站楼"))))
+    a = get_route_air_city("2019-05-30 00:04:59", "2019-05-30 20:05:00", get_air_city("首都国际机场T2航站楼"))[0]
+
+    print(a.start_time)
+    print(a.arrive_time)
+    print(a.arrive_time - a.start_time)

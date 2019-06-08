@@ -6,10 +6,11 @@ from faker import Factory
 from sqlalchemy import create_engine, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import ForeignKey
-from utils import logger
+from utils import logfun
 from sqlalchemy import Column, String, Integer, Text, DateTime
 from sqlalchemy.orm import sessionmaker, relationship
 from DAO.connect import Base, engine
+import Mylog
 
 
 class Train(Base):
@@ -31,7 +32,7 @@ class Train(Base):
         return '%s(%r)' % (self.__class__.__name__, self.number)
 
 
-@logger
+@logfun
 def get_route_trains(DateStart, DateEnd, station):
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -47,8 +48,8 @@ def get_route_trains(DateStart, DateEnd, station):
     # for i in query:
     return query
 
-@logger
-def get_route_trains_city(DateStart, DateEnd, station):
+@logfun
+def get_train_city(station):
     Session = sessionmaker(bind=engine)
     session = Session()
     city = (session
@@ -56,9 +57,16 @@ def get_route_trains_city(DateStart, DateEnd, station):
             .filter_by(start_where=station)
             .first()
             )
+
+    return  city[0]
+
+@logfun
+def get_route_trains_city(DateStart, DateEnd,city):
+    Session = sessionmaker(bind=engine)
+    session = Session()
     query = (session
              .query(Train)
-             .filter_by(start_where_city=city[0])
+             .filter_by(start_where_city=city)
              .filter(Train.start_time >= DateStart)
              .filter(Train.start_time <= DateEnd)
              .all()
@@ -81,6 +89,14 @@ def get_price(id):
 
 # session.commit()
 if __name__ == '__main__':
-    print(len(get_route_trains_city("2019-05-30 00:04:59", "2019-05-30 20:05:00", "长春站")))
+
+    print(len( get_route_trains_city("2019-05-30 00:04:59", "2019-05-30 20:05:00",get_train_city( "长春站"))))
+    a= get_route_trains_city("2019-05-30 00:04:59", "2019-05-30 20:05:00",get_train_city( "长春站"))[0]
     # print(len((get_route_trains("2019-05-30 00:04:59", "2019-05-30 20:05:00", "长春站"))))
     # print(get_price(1)[0].price)
+
+
+    print(a.start_time)
+    print(a.arrive_time)
+    print(a.arrive_time - a.start_time)
+    Mylog.logger.info("fdsfs")

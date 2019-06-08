@@ -18,7 +18,7 @@ def mktimestamp(timeformat):  # "2019053000:24"
 from functools import wraps
 
 
-def logger(fn):
+def logfun(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         ts = time.time()
@@ -56,13 +56,13 @@ if __name__ == '__main__':
     print("end")
 
 
-    # @logger
+    # @logfun
     # def multipy(x, y):
     #     print(1111)
     #     return x * y
     #
     #
-    # @logger
+    # @logfun
     # def sum_num(n):
     #     s = 0
     #     for i in range(n + 1):

@@ -6,6 +6,7 @@ import time
 
 from Models.route import Route
 from DAO.distance import get_distance_from_list, get_distance_2_all
+from Mylog import logger
 
 
 class QueryRoute:
@@ -22,16 +23,19 @@ class QueryRoute:
 
     def get_total_cost(self, station):  # 总的代价
         # print(self.base_cost(station), self.heuristic_cost(station), self.change_cost(station))
-        return (self.base_cost(station)) + (self.heuristic_cost(station)) + (
+        self.cost=(self.base_cost(station)) + (self.heuristic_cost(station)) + (
             self.change_cost(station)) + self.price_cost(station)
+        return self.cost
 
     def base_cost(self, station):  # 已走距离
         # print("get_distance:", station.station_name, self.start.station_name)
         if station.arrive_where == self.start.arrive_where:
             return int(0)
-        print(station.arrive_where)
-        print(int(get_distance_from_list(self.dis_list[0], station.arrive_where)) * 0.33, station.arrive_where)
-        return int(get_distance_from_list(self.dis_list[0], station.arrive_where)) * 0.33
+
+        base_cost = (int(get_distance_from_list(self.dis_list[0], station.arrive_where)) * 0.33)
+        if base_cost == 9999999999:
+            logger.debug("找不到距离:"+ station.arrive_where)
+        return base_cost
 
     def heuristic_cost(self, station):  # 启发函数  距离
         # print("get_distance:", station.station_name, self.target.station_name)
@@ -82,7 +86,7 @@ class QueryRoute:
 
         if station in self.closed_list:
             return  # Do nothing for visited point
-        print('Process Point [', station.arrive_where, ',]', ', cost: ', 'station.cost')
+        print('Process Point [', station.arrive_where, ',]')
         if station not in self.open_list:
             station.parent = parent
             # station.total_cost = self.get_total_cost(station)
@@ -127,7 +131,7 @@ class QueryRoute:
             print("比较：", self.target.arrive_where_city, station.arrive_where_city)
             if self.target.arrive_where_city == station.arrive_where_city:
                 end_time = time.time()
-                print('===== Algorithm finish in', (end_time - start_time), ' seconds')
+                logger.info('===== Algorithm finish in' + str(end_time - start_time) + ' seconds')
                 return self.build_path(station)
 
             self.open_list.remove(station)
