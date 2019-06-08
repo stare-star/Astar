@@ -29,6 +29,8 @@ class QueryRoute:
         # print("get_distance:", station.station_name, self.start.station_name)
         if station.arrive_where == self.start.arrive_where:
             return int(0)
+        print(station.arrive_where)
+        print(int(get_distance_from_list(self.dis_list[0], station.arrive_where)) * 0.33, station.arrive_where)
         return int(get_distance_from_list(self.dis_list[0], station.arrive_where)) * 0.33
 
     def heuristic_cost(self, station):  # 启发函数  距离
@@ -36,7 +38,7 @@ class QueryRoute:
 
         if station.arrive_where == self.target.arrive_where:
             return int(0)
-        print(station.arrive_where, self.target.arrive_where)
+        # print(station.arrive_where, self.target.arrive_where)
 
         return int(get_distance_from_list(self.dis_list[1], station.arrive_where)) * 0.33
 
@@ -59,7 +61,7 @@ class QueryRoute:
         for i in self.open_list:
             # i.cost = self.get_total_cost(i)
             i.cost = self.get_total_cost(i)
-            print(i.cost)
+            # print(i.cost)
             if i.cost < min_cost:
                 min_cost = i.cost
                 min_i = i
@@ -102,7 +104,7 @@ class QueryRoute:
         print(res)
         path = ""
         for r in res:
-            path += str(r[1])+"  "+r[0] + "  "
+            path += str(r[1]) + "  " + r[0] + "  "
 
         print(path)
         return path
@@ -135,17 +137,17 @@ class QueryRoute:
             neighbors = station.get_next_route(self.timestamp_start, self.timestamp_end)
             k = 0
             for i in neighbors:
-                print(k, len(neighbors))
-                k += 1
-                print(i.arrive_where)
+                # print(k, len(neighbors))
+                # k += 1
+                # print(i.arrive_where)
                 self.process_station(i, station)
 
 
 if __name__ == '__main__':
-    start = Route("昆明站", "昆明")
+    start = Route("重庆站", "重庆")
     target = Route("北京站", "北京")
-    timestamp_start = 20190529
-    timestamp_end = 20190530
+    timestamp_start = "2019-05-30 00:04:59"
+    timestamp_end = "2019-05-31 20:05:00"
     route = QueryRoute(start, target, timestamp_start, timestamp_end)
     route.search()
     # print(route.dis_list[0])

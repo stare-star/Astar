@@ -26,7 +26,7 @@ def logger(fn):
         te = time.time()
         print("function      = {0}".format(fn.__name__))
         print("    arguments = {0} {1}".format(args, kwargs))
-        print("    return    = {0}".format(result))
+        # print("    return    = {0}".format(result))
         print("    time      = %.6f sec" % (te - ts))
         return result
 

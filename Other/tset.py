@@ -20,21 +20,15 @@ def music():
 
 if __name__ == '__main__':
 
-    list=[]
-    li=[1,2,]
-    list.insert(0,li)
-    list.insert(1,"ffrd")
-    print(list)
+    print('thread %s is running...' % threading.current_thread().name)
 
-    # print('thread %s is running...' % threading.current_thread().name)
-    #
-    # thread_list = []
-    # t1 = threading.Thread(target=coding, args=('Python',))
-    # t2 = threading.Thread(target=music)
-    # t1.start()
-    # t2.start()
-    # print('thread %s ended.' % threading.current_thread().name)
-    # print(threading.active_count())
+    thread_list = []
+    t1 = threading.Thread(target=coding, args=('Python',))
+    t2 = threading.Thread(target=music)
+    t1.start()
+    t2.start()
+    print('thread %s ended.' % threading.current_thread().name)
+    print(threading.active_count())
     # thread_list.append(t1)
     # thread_list.append(t2)
 

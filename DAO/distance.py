@@ -2,7 +2,7 @@
 
 import random
 import threading
-from thread import MyThread
+from Mythread import MyThread
 from utils import logger
 from sqlalchemy import create_engine, Table
 from sqlalchemy.ext.declarative import declarative_base
@@ -46,10 +46,15 @@ def get_distance(start, arrive):
 
 
 def get_distance_from_list(sub_list, station):
-    for i in sub_list:
-        if i.arrive == station:
-            print(i.distance)
-            return i.distance
+
+        for i in sub_list:
+            if i.arrive == station:
+                print(i.distance, station)
+                return i.distance
+
+
+        print(station, "找不到距离")
+        return 9999999999
 
 
 @logger
@@ -62,12 +67,29 @@ def get_distance_all(station):
 
     Session = sessionmaker(bind=engine)
     session = Session()
-    Q = (session
-         .query(Distance)
-         .filter(Distance.start == station)
-         .limit(10000)
-         .offset(0).all()
-         )
+
+    city = (session
+            .query(Train.start_where_city)
+            .filter_by(start_where=station)
+            .first()
+            )
+
+    stations = (session
+                .query(Train.start_where)
+                .filter_by(start_where_city=city[0])
+                .distinct()
+                .all()
+                )
+    print(len(stations))
+    Q = []
+
+    for foo_station in stations:
+        Q.extend(session
+                 .query(Distance)
+                 .filter(Distance.start == foo_station)
+                 .limit(10000)
+                 .offset(0).all()
+                 )
     session.close()
     if len(Q) == 0:
         print("找不到距离数据")
@@ -83,6 +105,7 @@ def get_distance_2_all(start_station, end_station):
     :param end_station:
     :return: 到两地的所有距离
     '''
+
     t1 = MyThread(target=get_distance_all, args=(start_station,))
     t2 = MyThread(target=get_distance_all, args=(end_station,))
     t1.start()
@@ -95,6 +118,6 @@ def get_distance_2_all(start_station, end_station):
 
 if __name__ == '__main__':
     # print(get_distance("北京站", "长春站"))
-    Q = get_distance_2_all("长春站", "三亚站")
+    Q = get_distance_2_all("北京站", "三亚站")
     print(Q[0][0].arrive)
     print(get_distance_from_list(Q[0], "重庆站"))
