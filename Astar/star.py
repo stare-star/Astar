@@ -167,10 +167,10 @@ class QueryRoute:
 
 if __name__ == '__main__':
     start = Route("重庆站")
-target = Route("北京站")
-timestamp_start = ("2019-05-30 00:04:59")
-timestamp_end = ("2019-05-31 20:05:00")
-route = QueryRoute(start, target, timestamp_start, timestamp_end)
-route.search()
+    target = Route("北京站")
+    timestamp_start = ("2019-05-30 00:04:59")
+    timestamp_end = ("2019-05-31 20:05:00")
+    route = QueryRoute(start, target, timestamp_start, timestamp_end)
+    route.search()
 # print(route.dis_list[0])
 # print(get_distance_from_list(route.dis_list[1], "上海站"))

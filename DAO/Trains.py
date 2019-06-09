@@ -57,8 +57,11 @@ def get_train_city(station):
             .filter_by(start_where=station)
             .first()
             )
+    if city is None:
+        print('typet',type(city))
+        return None
 
-    return  city[0]
+    return city[0]
 
 @logfun
 def get_route_trains_city(DateStart, DateEnd,city):
@@ -95,8 +98,10 @@ if __name__ == '__main__':
     # print(len((get_route_trains("2019-05-30 00:04:59", "2019-05-30 20:05:00", "长春站"))))
     # print(get_price(1)[0].price)
 
-
+    import datetime
     print(a.start_time)
-    print(a.arrive_time)
-    print(a.arrive_time - a.start_time)
+    print(type(datetime.timedelta(hours=2)))
+    print((a.arrive_time - a.start_time))
+    print(datetime.timedelta(hours=2))
+    print((a.arrive_time - a.start_time)>(datetime.timedelta(hours=2)))
     Mylog.logger.info("fdsfs")

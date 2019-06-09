@@ -1,7 +1,7 @@
 # @Time  : 2019/5/23 0023 21:07
 # @Author: LYX
 # @File  : route.py
-from datetime import datetime
+import datetime
 
 from Mylog import logger
 
@@ -45,11 +45,11 @@ class Route:
         '''
         if self is not None:
             if self.arrive_time:
-                time_limit = self.arrive_time
+                time_limit = self.arrive_time+datetime.timedelta(hours=0)
                 # print(time_limit)
                 # print(type(time_limit), "p")
             else:
-                time_limit = datetime(2000, 1, 1)
+                time_limit =datetime.datetime(2000, 1, 1)
                 # todo datetime
                 # print(type(time_limit), "s")
         #
@@ -107,11 +107,18 @@ class Route:
         self._cost = cost
 
     def get_station_city(self):
-        try:
-            self.arrive_where_city = get_train_city(self.arrive_where)
-        except:
-            self.arrive_where_city = get_air_city(self.arrive_where)
 
+        logger.debug("trainbegin")
+
+        city = get_train_city(self.arrive_where)
+       # self.arrive_where_city = get_train_city(self.arrive_where)
+        logger.debug("train")
+        if city is None:
+            if self.arrive_where=="重庆江北国际机场T2航站楼":
+                self.arrive_where="重庆江北国际机场T2B航站楼"
+            city = get_air_city(self.arrive_where)
+            logger.debug("air")
+        self.arrive_where_city=city
         # logger.info(str(self.arrive_where)+"所在城市是"+str(self.arrive_where_city))
 
     def get_route_from_cache(self):
