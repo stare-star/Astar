@@ -2,11 +2,15 @@
 # @Author: LYX
 # @File  : star.py
 import sys
+import threading
 import time
+from queue import Queue
 
-from Models.route import Route
+from Models.result import query_result
+from Models.route import Route, get_station_city
 from DAO.distance import get_distance_from_list, get_distance_2_all
 from Mylog import logger
+from Mythread import MyThread
 
 
 class QueryRoute:
@@ -14,16 +18,20 @@ class QueryRoute:
     closed_list = []
 
     def __init__(self, start, target, timestamp_start, timestamp_end):
+        start.get_station_city()
+        # start.arrive_time=timestamp_start
         self.start = start  # 设置起点
+        target.get_station_city()
         self.target = target  # 目的地
         self.timestamp_start = timestamp_start
         self.timestamp_end = timestamp_end
         self.min_cost = sys.maxsize
-        self.dis_list = get_distance_2_all(self.start.arrive_where, self.target.arrive_where)
+        self.route_cache = {}
+        self.dis_list = get_distance_2_all(self.start.arrive_where_city, self.target.arrive_where_city)
 
     def get_total_cost(self, station):  # 总的代价
         # print(self.base_cost(station), self.heuristic_cost(station), self.change_cost(station))
-        self.cost=(self.base_cost(station)) + (self.heuristic_cost(station)) + (
+        self.cost = (self.base_cost(station)) + (self.heuristic_cost(station)) + (
             self.change_cost(station)) + self.price_cost(station)
         return self.cost
 
@@ -34,7 +42,7 @@ class QueryRoute:
 
         base_cost = (int(get_distance_from_list(self.dis_list[0], station.arrive_where)) * 0.33)
         if base_cost == 9999999999:
-            logger.debug("找不到距离:"+ station.arrive_where)
+            logger.debug("找不到距离:" + station.arrive_where)
         return base_cost
 
     def heuristic_cost(self, station):  # 启发函数  距离
@@ -86,7 +94,7 @@ class QueryRoute:
 
         if station in self.closed_list:
             return  # Do nothing for visited point
-        print('Process Point [', station.arrive_where, ',]')
+        # print('Process Point [', station.arrive_where, ',]')
         if station not in self.open_list:
             station.parent = parent
             # station.total_cost = self.get_total_cost(station)
@@ -102,16 +110,20 @@ class QueryRoute:
                 break
             else:
                 station = station.parent
-        res = []
+        # res = []
+        # for i in path:
+        #     res.append([i.arrive_where, i.number, i.id, i.price])
+        # print(res)
+        res = query_result(self.start.arrive_where, self.target.arrive_where)
         for i in path:
-            res.append([i.arrive_where, i.number, i.id])
-        print(res)
-        path = ""
-        for r in res:
-            path += str(r[1]) + "  " + r[0] + "  "
+            res.add_stations(i.number, i.start_where, i.arrive_where, i.price, i.start_time, i.arrive_time)
+            print(i.number, i.price, i.start_time, i.arrive_time)
 
-        print(path)
-        return path
+        print(res.to_string())
+        # import json
+        # json =json.dumps(path)
+        # print(json)
+        return res.to_string()
 
     def search(self):
         start_time = time.time()
@@ -138,21 +150,27 @@ class QueryRoute:
             self.closed_list.append(station)
 
             # Process all neighbors
-            neighbors = station.get_next_route(self.timestamp_start, self.timestamp_end)
-            k = 0
+            neighbors = station.get_next_route(self.timestamp_start, self.timestamp_end, self.route_cache)
+            # k = 0
+            thread_list = []
             for i in neighbors:
                 # print(k, len(neighbors))
                 # k += 1
                 # print(i.arrive_where)
-                self.process_station(i, station)
-
+                t1 = threading.Thread(target=self.process_station, args=(i, station,))
+                thread_list.append(t1)
+                t1.setDaemon(True)
+                t1.start()
+            for i in thread_list:
+                i.join()
+            # self.process_station(i, station)
 
 if __name__ == '__main__':
-    start = Route("重庆站", "重庆")
-    target = Route("北京站", "北京")
-    timestamp_start = "2019-05-30 00:04:59"
-    timestamp_end = "2019-05-31 20:05:00"
-    route = QueryRoute(start, target, timestamp_start, timestamp_end)
-    route.search()
-    # print(route.dis_list[0])
-    # print(get_distance_from_list(route.dis_list[1], "上海站"))
+    start = Route("重庆站")
+target = Route("北京站")
+timestamp_start = ("2019-05-30 00:04:59")
+timestamp_end = ("2019-05-31 20:05:00")
+route = QueryRoute(start, target, timestamp_start, timestamp_end)
+route.search()
+# print(route.dis_list[0])
+# print(get_distance_from_list(route.dis_list[1], "上海站"))

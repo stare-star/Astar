@@ -2,6 +2,8 @@
 
 import random
 import threading
+
+from DAO.airplane import Airplane
 from Mythread import MyThread
 from utils import logfun
 from Mylog import logger
@@ -56,28 +58,30 @@ def get_distance_from_list(sub_list, station):
 
 
 @logfun
-def get_distance_all(station):
+def get_distance_all(city):
     """
-    :param station:站名
+    :param station: 城市
     :return: 两地距离
     A到所有其他地方的距离   list
     """
 
     Session = sessionmaker(bind=engine)
     session = Session()
-
-    city = (session
-            .query(Train.start_where_city)
-            .filter(Train.start_where == station)
-            .first()
-            )
-
-    stations = (session
+    train_stations = (session
                 .query(Train.start_where)
-                .filter_by(start_where_city=city[0])
+                .filter_by(start_where_city=city)
                 .distinct()
                 .all()
                 )
+    air_stations=(session
+                     .query(Airplane.start_where)
+                     .filter_by(start_where_city=city)
+                     .distinct()
+                     .all()
+                     )
+    stations=[]
+    stations.extend(train_stations)
+    stations.extend(air_stations)
     print(len(stations))
     Q = []
 
@@ -115,7 +119,7 @@ def get_distance_2_all(start_station, end_station):
 
 
 if __name__ == '__main__':
-    print(get_distance("北京站", "长春站"))
-    Q = get_distance_2_all("北京站", "三亚站")
+    print(get_distance_all("北京"))
+    Q = get_distance_2_all("北京", "三亚")
     print(Q[0][0].arrive)
     print(get_distance_from_list(Q[0], "重庆站"))
