@@ -116,7 +116,7 @@ class QueryRoute:
         # print(res)
         res = query_result(self.start.arrive_where, self.target.arrive_where)
         for i in path:
-            res.add_stations(i.number, i.start_where, i.arrive_where, i.price, i.start_time, i.arrive_time,i.name)
+            res.add_stations(i.number, i.start_where, i.arrive_where, i.price, i.start_time, i.arrive_time,i.name,i.time,i.rate,i.company,i.airplane_type)
             print(i.number, i.price, i.start_time, i.arrive_time,i.name)
 
         print(res.to_string())
