@@ -1,11 +1,9 @@
 # @Time  : 2019/6/5 0005 10:14
 # @Author: LYX
 # @File  : __init__.py
-
+import sys
+sys.path.append("../")
 from flask import Flask, request, render_template
-
-app = Flask(__name__)
-
 from Astar.star import QueryRoute
 from Models.route import Route
 

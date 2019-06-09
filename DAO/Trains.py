@@ -27,7 +27,7 @@ class Train(Base):
     date = Column(String(255), nullable=False)
     arrive_where_city = Column(String(255), nullable=False)
     start_where_city = Column(String(255), nullable=False)
-
+    name="train"
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, self.number)
 

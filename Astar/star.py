@@ -116,8 +116,8 @@ class QueryRoute:
         # print(res)
         res = query_result(self.start.arrive_where, self.target.arrive_where)
         for i in path:
-            res.add_stations(i.number, i.start_where, i.arrive_where, i.price, i.start_time, i.arrive_time)
-            print(i.number, i.price, i.start_time, i.arrive_time)
+            res.add_stations(i.number, i.start_where, i.arrive_where, i.price, i.start_time, i.arrive_time,i.name)
+            print(i.number, i.price, i.start_time, i.arrive_time,i.name)
 
         print(res.to_string())
         # import json
@@ -167,7 +167,7 @@ class QueryRoute:
 
 if __name__ == '__main__':
     start = Route("重庆站")
-    target = Route("北京站")
+    target = Route("武昌站")
     timestamp_start = ("2019-05-30 00:04:59")
     timestamp_end = ("2019-05-31 20:05:00")
     route = QueryRoute(start, target, timestamp_start, timestamp_end)

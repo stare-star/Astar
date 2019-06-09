@@ -29,6 +29,7 @@ class Airplane(Base):
     arrive_time = Column(DateTime(255), nullable=False)
     price = Column(Integer, nullable=True)
     rate = Column(String(255), nullable=False)
+    name = "plane"
 
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, self.number)

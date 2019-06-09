@@ -18,6 +18,7 @@ class Route:
                  arrive_time=None,
                  start_where=None, price=None, start_where_city=None, rate=None, airplane_type=None,
                  company=None,
+                 name=None
                  ):
         self.id = id
         self.number = number
@@ -34,6 +35,7 @@ class Route:
         self.company = company
         self.airplane_type = airplane_type
         self.next_route_cache = {}
+        self.name = name
 
     def get_next_route(self, timestampStart, timestampEnd, next_route_cache=None):
         '''
@@ -45,11 +47,11 @@ class Route:
         '''
         if self is not None:
             if self.arrive_time:
-                time_limit = self.arrive_time+datetime.timedelta(hours=0)
+                time_limit = self.arrive_time + datetime.timedelta(hours=0)
                 # print(time_limit)
                 # print(type(time_limit), "p")
             else:
-                time_limit =datetime.datetime(2000, 1, 1)
+                time_limit = datetime.datetime(2000, 1, 1)
                 # todo datetime
                 # print(type(time_limit), "s")
         #
@@ -77,7 +79,7 @@ class Route:
         next_routes = [
             Route(arrive_where=i.arrive_where, arrive_where_city=i.arrive_where_city, id=i.id, number=i.number,
                   start_time=i.start_time, time=i.arrive_time - i.start_time, arrive_time=i.arrive_time,
-                  start_where=i.start_where, price=i.price, start_where_city=i.start_where_city)
+                  start_where=i.start_where, price=i.price, start_where_city=i.start_where_city,name=i.name)
             for i in traffic if i.start_time > time_limit]
         return next_routes
 
@@ -111,14 +113,14 @@ class Route:
         logger.debug("trainbegin")
 
         city = get_train_city(self.arrive_where)
-       # self.arrive_where_city = get_train_city(self.arrive_where)
+        # self.arrive_where_city = get_train_city(self.arrive_where)
         logger.debug("train")
         if city is None:
-            if self.arrive_where=="重庆江北国际机场T2航站楼":
-                self.arrive_where="重庆江北国际机场T2B航站楼"
+            if self.arrive_where == "重庆江北国际机场T2航站楼":
+                self.arrive_where = "重庆江北国际机场T2B航站楼"
             city = get_air_city(self.arrive_where)
             logger.debug("air")
-        self.arrive_where_city=city
+        self.arrive_where_city = city
         # logger.info(str(self.arrive_where)+"所在城市是"+str(self.arrive_where_city))
 
     def get_route_from_cache(self):

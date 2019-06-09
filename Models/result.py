@@ -7,25 +7,25 @@ class query_result():
         self.target = target
         self.stations = []
 
-    def add_stations(self, number, start_where, arrive_where, price, start_time, arrive_time, ):
+    def add_stations(self, number, start_where, arrive_where, price, start_time, arrive_time, name):
         station = {"number": number, "price": price, "start_where": start_where, "arrive_where": arrive_where,
-                   "start_time": start_time, "arrive_time": arrive_time, }
+                   "start_time": start_time, "arrive_time": arrive_time,"name":name }
         self.stations.append(station)
+
     def to_json(self):
         pass
 
-
     def to_string(self):
-        res = "起始站：" + self.start + "\n"
-
+        res = "{\"plans\":[{\"id\":\"1\","+"\"start_station\":" + "\"" + self.start + "\"" + "," + "\"steps\":["
         price = 0
         for i in self.stations:
-            res += "start_time:" + str(i["start_time"]) + "--" + 'number:' + str(
-                i['number']) + "--" + 'start_where:' + str(i['start_where']) + "--" + 'arrive_where:' + str(
-                i['arrive_where']) + "--" + 'arrive_time:' + str(i['arrive_time']) + "--" + \
-                   "price:" + str(i["price"]) + "\n"
+            res += "{\"name\":"+ "\"" + str(i["name"])+"\""+",\"start_time\":" + "\"" + str(i["start_time"]) + "\"" + ",\"number\":" + "\"" + str(
+                i['number']) + "\"" + ",\"start_where\":" + "\"" + str(
+                i['start_where']) + "\"" + ",\"arrive_where\":" + str(
+                "\"" + i['arrive_where']) + "\"" + ",\"arrive_time\":" + "\"" + str(i['arrive_time']) + "\"" + \
+                   ",\"price\":" + "\"" + str(i["price"]) + "\"" + "},"
             # price += int(i["price"])
-        res += "\"终点站:\"" + self.target + "\n" \
-               + "\"总价格:\"" + str(price) + "\n" \
-               + "\"总时间:\"" + str("?")
+        res = res[:-1]
+
+        res += "]," + "\"arrive_station\":" + "\"" + self.target + "\""+"}]}"
         return res
