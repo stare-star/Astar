@@ -121,7 +121,7 @@ class QueryRoute:
         # json =json.dumps(path)
         # print(json)
 
-        add_result(timestamp_start, timestamp_end, start.arrive_where, target.arrive_where,json)
+        add_result(self.timestamp_start, self.timestamp_end, self.start.arrive_where, self.target.arrive_where,json)
         return json
 
     def search(self):
