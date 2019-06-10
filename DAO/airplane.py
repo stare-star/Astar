@@ -59,6 +59,7 @@ def get_air_city(station):
             .first()
             )
     return city[0]
+    session.close()
 
 
 @logfun
@@ -72,6 +73,8 @@ def get_route_air_city(DateStart, DateEnd, city):
              .filter(Airplane.start_time <= DateEnd)
              .all()
              )
+    session.close()
+
     return query
 
 

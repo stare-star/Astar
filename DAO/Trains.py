@@ -57,10 +57,11 @@ def get_train_city(station):
             .filter_by(start_where=station)
             .first()
             )
+    session.close()
+
     if city is None:
         print('typet',type(city))
         return None
-
     return city[0]
 
 @logfun
@@ -74,6 +75,7 @@ def get_route_trains_city(DateStart, DateEnd,city):
              .filter(Train.start_time <= DateEnd)
              .all()
              )
+    session.close()
     return query
 
 

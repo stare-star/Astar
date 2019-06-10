@@ -6,7 +6,7 @@ import threading
 import time
 from queue import Queue
 
-from Models.result import query_result
+from Models.result import query_result, get_result, add_result
 from Models.route import Route, get_station_city
 from DAO.distance import get_distance_from_list, get_distance_2_all
 from Mylog import logger
@@ -18,16 +18,11 @@ class QueryRoute:
     closed_list = []
 
     def __init__(self, start, target, timestamp_start, timestamp_end):
-        start.get_station_city()
-        # start.arrive_time=timestamp_start
-        self.start = start  # 设置起点
-        target.get_station_city()
-        self.target = target  # 目的地
+
         self.timestamp_start = timestamp_start
         self.timestamp_end = timestamp_end
         self.min_cost = sys.maxsize
         self.route_cache = {}
-        self.dis_list = get_distance_2_all(self.start.arrive_where_city, self.target.arrive_where_city)
 
     def get_total_cost(self, station):  # 总的代价
         # print(self.base_cost(station), self.heuristic_cost(station), self.change_cost(station))
@@ -116,16 +111,29 @@ class QueryRoute:
         # print(res)
         res = query_result(self.start.arrive_where, self.target.arrive_where)
         for i in path:
-            res.add_stations(i.number, i.start_where, i.arrive_where, i.price, i.start_time, i.arrive_time,i.name,i.time,i.rate,i.company,i.airplane_type)
-            print(i.number, i.price, i.start_time, i.arrive_time,i.name)
+            res.add_stations(i.number, i.start_where, i.arrive_where, i.price, i.start_time, i.arrive_time, i.name,
+                             i.time, i.rate, i.company, i.airplane_type)
+            print(i.number, i.price, i.start_time, i.arrive_time, i.name)
 
-        print(res.to_string())
+        json=res.to_string()
         # import json
         # json =json.dumps(path)
         # print(json)
-        return res.to_string()
+
+        add_result(timestamp_start, timestamp_end, start.arrive_where, target.arrive_where,json)
+        return json
 
     def search(self):
+        cache = get_result(timestamp_start, timestamp_end, start.arrive_where, target.arrive_where)
+        print(cache)
+        if cache != 0:
+            return cache
+        start.get_station_city()
+        # start.arrive_time=timestamp_start
+        self.start = start  # 设置起点
+        target.get_station_city()
+        self.target = target  # 目的地
+        self.dis_list = get_distance_2_all(self.start.arrive_where_city, self.target.arrive_where_city)
         start_time = time.time()
         start_station = self.start
         start_station.cost = 0
@@ -165,11 +173,13 @@ class QueryRoute:
                 i.join()
             # self.process_station(i, station)
 
+
 if __name__ == '__main__':
     start = Route("重庆站")
     target = Route("武昌站")
     timestamp_start = ("2019-05-30 00:04:59")
     timestamp_end = ("2019-05-31 20:05:00")
+
     route = QueryRoute(start, target, timestamp_start, timestamp_end)
     route.search()
 # print(route.dis_list[0])
