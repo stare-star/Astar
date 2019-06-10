@@ -18,7 +18,8 @@ class QueryRoute:
     closed_list = []
 
     def __init__(self, start, target, timestamp_start, timestamp_end):
-
+        self.start = start  # 设置起点
+        self.target = target  # 目的地
         self.timestamp_start = timestamp_start
         self.timestamp_end = timestamp_end
         self.min_cost = sys.maxsize
@@ -124,15 +125,14 @@ class QueryRoute:
         return json
 
     def search(self):
-        cache = get_result(timestamp_start, timestamp_end, start.arrive_where, target.arrive_where)
+        cache = get_result(self.timestamp_start, self.timestamp_end, self.start.arrive_where,self.target.arrive_where)
         print(cache)
         if cache != 0:
             return cache
-        start.get_station_city()
+        self.start.get_station_city()
         # start.arrive_time=timestamp_start
-        self.start = start  # 设置起点
-        target.get_station_city()
-        self.target = target  # 目的地
+
+        self.target.get_station_city()
         self.dis_list = get_distance_2_all(self.start.arrive_where_city, self.target.arrive_where_city)
         start_time = time.time()
         start_station = self.start
